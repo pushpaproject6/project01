@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Marks Management System</title>
+
+    <!-- CSS FILE ATTACHED HERE -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Marks Management System</h1>
+
+    <div class="form">
+        <input type="text" id="name" placeholder="Student Name">
+        <input type="number" id="classTest" placeholder="Class Test Marks">
+        <input type="number" id="midMarks" placeholder="Mid Exam Marks">
+        <input type="number" id="attendance" placeholder="Attendance %">
+        
+        <button onclick="addStudent()">Add Student</button>
+    </div>
+
+    <input type="text" id="search" placeholder="Search Student..." onkeyup="searchStudent()">
+
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Class Test</th>
+                <th>Mid Marks</th>
+                <th>Attendance</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button onclick="exportToCSV()">Export to Excel</button>
+</div>
+
+<script>
+let students = [];
+
+function addStudent() {
+    let name = document.getElementById("name").value;
+    let ct = parseInt(document.getElementById("classTest").value) || 0;
+    let mid = parseInt(document.getElementById("midMarks").value) || 0;
+    let att = parseInt(document.getElementById("attendance").value) || 0;
+
+    if (name === "") {
+        alert("Enter student name");
+        return;
+    }
+
+    let total = ct + mid + att;
+
+    students.push({ name, ct, mid, att, total });
+
+    displayStudents();
+}
+
+function displayStudents() {
+    let table = document.querySelector("#studentTable tbody");
+    table.innerHTML = "";
+
+    students.forEach((s, index) => {
+        table.innerHTML += `
+            <tr>
+                <td>${s.name}</td>
+                <td>${s.ct}</td>
+                <td>${s.mid}</td>
+                <td>${s.att}</td>
+                <td>${s.total}</td>
+                <td><button onclick="deleteStudent(${index})">Delete</button></td>
+            </tr>
+        `;
+    });
+}
+
+function deleteStudent(index) {
+    students.splice(index, 1);
+    displayStudents();
+}
+
+function searchStudent() {
+    let input = document.getElementById("search").value.toLowerCase();
+    let rows = document.querySelectorAll("#studentTable tbody tr");
+
+    rows.forEach(row => {
+        let name = row.cells[0].innerText.toLowerCase();
+        row.style.display = name.includes(input) ? "" : "none";
+    });
+}
+
+function exportToCSV() {
+    let csv = "Name,Class Test,Mid Marks,Attendance,Total\n";
+
+    students.forEach(s => {
+        csv += `${s.name},${s.ct},${s.mid},${s.att},${s.total}\n`;
+    });
+
+    let blob = new Blob([csv], { type: "text/csv" });
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "students.csv";
+    link.click();
+}
+</script>
+
+</body>
+</html>
